@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmniSynch Automations | Panel de Inventario</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <aside class="col-12 col-lg-2 sidebar p-3 p-lg-4">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <div class="rounded-4 d-flex align-items-center justify-content-center logo-icon">
+            <i class="bi bi-box-seam fs-4"></i>
+          </div>
+          <div>
+            <div class="brand">OmniSynch</div>
+            <small class="text-white-50">Automations</small>
+          </div>
+        </div>
+
+        <nav class="nav flex-column" id="main-nav">
+          <a class="nav-link active" href="#" onclick="UI.showSection('dashboard'); return false;"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('productos'); return false;"><i class="bi bi-bag me-2"></i>Productos</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('categorias'); return false;"><i class="bi bi-tags me-2"></i>Categorías</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('proveedores'); return false;"><i class="bi bi-truck me-2"></i>Proveedores</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('inventario'); return false;"><i class="bi bi-boxes me-2"></i>Inventario</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('ventas'); return false;"><i class="bi bi-cart-check me-2"></i>Ventas</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('alertas'); return false;"><i class="bi bi-bell me-2"></i>Alertas</a>
+          <a class="nav-link" href="#" onclick="UI.showSection('reportes'); return false;"><i class="bi bi-graph-up-arrow me-2"></i>Reportes</a>
+          <a class="nav-link admin-only" href="#" onclick="UI.showSection('usuarios'); return false;"><i class="bi bi-people me-2"></i>Usuarios</a>
+        </nav>
+
+        <hr class="border-light border-opacity-10 my-4">
+        <div class="d-flex align-items-center justify-content-between small text-white-50 mt-auto">
+          <span>v2.4.1 (Estable)</span>
+          <span class="d-flex align-items-center gap-1">
+            <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span> Online
+          </span>
+        </div>
+      </aside>
+
+      <main class="col-12 col-lg-10 p-0">
+        <div class="topbar px-3 px-lg-4 py-3 sticky-top">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+              <h4 class="mb-1 section-title">Centro de Operaciones</h4>
+              <div class="text-secondary">OmniSynch Automations | Gestión centralizada</div>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <button class="btn btn-outline-primary d-none d-sm-block" onclick="UI.showSection('reportes')">
+                <i class="bi bi-download me-1"></i>Reportes
+              </button>
+              
+              <div class="vr d-none d-md-block mx-1"></div>
+              
+              <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img id="user-nav-avatar" src="https://ui-avatars.com/api/?name=Cargando&background=0f172a&color=fff&rounded=true&bold=true" alt="Perfil" width="40" height="40" class="me-2 shadow-sm">
+                  <div class="d-none d-sm-block text-start me-1">
+                    <div id="user-nav-name" class="fw-bold" style="font-size: 0.9rem; line-height: 1.2;">Cargando...</div>
+                    <small id="user-nav-role" class="text-muted d-block" style="font-size: 0.75rem;">...</small>
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="userMenu">
+                  <li><h6 class="dropdown-header">Ajustes de cuenta</h6></li>
+                  <li><a class="dropdown-item py-2" href="#" data-bs-toggle="modal" data-bs-target="#modalPerfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+                  <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i>Configuración del sistema</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item py-2 text-danger" href="#" onclick="App.logout(); return false;"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-wrap p-3 p-lg-4">
+          <section id="dashboard" class="section-area show-section">
+            <div class="hero-box p-4 p-lg-5 mb-4 text-white">
+              <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                  <span class="mini-pill mb-3 text-white"><i class="bi bi-cloud-check-fill text-success"></i> Sincronización en la nube activa</span>
+                  <h1 class="display-6 mb-3 fw-bold">Sistema de Gestión ERP e Inventario</h1>
+                  <p class="mb-4 text-white-75">
+                    Centro de control para la sincronización de productos, seguimiento de stock en tiempo real y consolidación de ventas omnicanal.
+                  </p>
+                  <div class="d-flex flex-wrap gap-2 text-white">
+                    <span class="mini-pill"><i class="bi bi-check2-circle"></i> Trazabilidad</span>
+                    <span class="mini-pill"><i class="bi bi-check2-circle"></i> Alertas de reposición</span>
+                    <span class="mini-pill"><i class="bi bi-check2-circle"></i> Inteligencia de negocios</span>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="bg-white bg-opacity-10 rounded-4 p-3 p-lg-4 border border-white border-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <div class="text-white-50">Estado de los servicios</div>
+                        <h3 class="mb-0 text-white" id="sys-status">Analizando...</h3>
+                      </div>
+                      <i class="bi bi-hdd-network fs-1 text-white"></i>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px; background-color: rgba(255,255,255,0.2);">
+                      <div class="progress-bar bg-success" id="sys-progress" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="small text-white-75 text-end" id="sys-latency">
+                      Latencia: Calculando...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6 col-xl-3">
+                <div class="card stat-card p-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="muted-label">Total Referencias</div>
+                      <h3 class="mb-0" id="stat-productos">0</h3> <small class="text-muted">Catálogo</small>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill">Catálogo</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-xl-3">
+                <div class="card stat-card p-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="muted-label">Quiebre de Stock</div>
+                      <h3 class="mb-0 text-danger" id="stat-alertas">0</h3> <small class="text-muted">Atención req.</small>
+                    </div>
+                    <span class="badge text-bg-warning rounded-pill">Atención req.</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-xl-3">
+                <div class="card stat-card p-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="muted-label">Total de Ingresos</div>
+                      <h3 class="mb-0 text-success" id="stat-ventas">0</h3> <small class="text-muted">Confirmadas</small>
+                    </div>
+                    <span class="badge text-bg-success rounded-pill">Confirmadas</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-xl-3">
+                <div class="card stat-card p-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="muted-label">Proveedores</div>
+                      <h3 class="mb-0 text-primary" id="stat-proveedores">0</h3> <small class="text-muted">Homologados</small>
+                    </div>
+                    <span class="badge text-bg-info rounded-pill">Homologados</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-lg-7">
+                <div class="card panel-card p-3 p-lg-4 h-100">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                      <h5 class="mb-1 section-title">Operaciones Frecuentes</h5>
+                      <div class="small-help">Accesos rápidos a módulos principales</div>
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6" style="cursor: pointer;" onclick="UI.showSection('productos')">
+                      <div class="border rounded-4 p-3 bg-light hover-shadow transition">
+                        <i class="bi bi-box-seam fs-3 text-primary"></i>
+                        <h6 class="mt-2">Alta de producto</h6>
+                        <p class="small text-secondary mb-0">Gestión de maestro de artículos y precios.</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6" style="cursor: pointer;" onclick="UI.showSection('inventario')">
+                      <div class="border rounded-4 p-3 bg-light hover-shadow transition">
+                        <i class="bi bi-box-arrow-in-down fs-3 text-primary"></i>
+                        <h6 class="mt-2">Recepción de mercancía</h6>
+                        <p class="small text-secondary mb-0">Registro de entradas y ajustes positivos.</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6" style="cursor: pointer;" onclick="UI.showSection('ventas')">
+                      <div class="border rounded-4 p-3 bg-light hover-shadow transition">
+                        <i class="bi bi-cart-check fs-3 text-primary"></i>
+                        <h6 class="mt-2">Punto de Venta (POS)</h6>
+                        <p class="small text-secondary mb-0">Registro de salidas por facturación.</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6" style="cursor: pointer;" onclick="UI.showSection('alertas')">
+                      <div class="border rounded-4 p-3 bg-light hover-shadow transition">
+                        <i class="bi bi-shield-exclamation fs-3 text-primary"></i>
+                        <h6 class="mt-2">Monitor de alertas</h6>
+                        <p class="small text-secondary mb-0">Auditoría de inventario crítico o negativo.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-5">
+                <div class="card panel-card p-3 p-lg-4 h-100">
+                  <div class="d-flex justify-content-between">
+                    <h5 class="mb-3 section-title">Actividad del Sistema</h5>
+                    <i class="bi bi-arrow-clockwise text-primary" id="btn-refresh-actividad" style="cursor: pointer;"></i>
+                  </div>
+                  <div class="small-help mb-4">Registro de eventos automatizados (Últimas 24h)</div>
+                  
+                  <div id="dash-timeline" class="position-relative ms-3 border-start border-2 border-primary border-opacity-25 pb-2">
+                    <div class="text-center text-muted small py-3">Cargando actividad desde la base de datos...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="productos" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4 mb-4">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div>
+                  <h5 class="mb-1 section-title">Registro de productos</h5>
+                  <div class="small-help">Crea productos base y sus datos principales</div>
+                </div>
+                <span class="badge text-bg-primary rounded-pill">Módulo principal</span>
+              </div>
+
+              <form id="form-producto" class="row g-3">
+                <div class="col-md-6">
+                  <label class="muted-label">Nombre del producto</label>
+                  <input id="prod_nombre" class="form-control" placeholder="Ej. Camiseta Básica Negra" required>
+                </div>
+                <div class="col-md-3">
+                  <label class="muted-label">Categoría</label>
+                  <select id="prod_categoria" class="form-select" required>
+                    <option value="">Seleccionar</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="muted-label">Marca</label>
+                  <select id="prod_marca" class="form-select">
+                    <option value="">Seleccionar</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Proveedor</label>
+                  <select id="prod_proveedor" class="form-select">
+                    <option value="">Seleccionar</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Precio de compra</label>
+                  <input id="prod_compra" type="number" class="form-control" placeholder="15000" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Precio de venta</label>
+                  <input id="prod_venta" type="number" class="form-control" placeholder="30000" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="muted-label">Tipo de producto</label>
+                  <select id="prod_tipo" class="form-select">
+                    <option value="simple">Simple</option>
+                    <option value="variable">Variable</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="muted-label">Descripción</label>
+                  <input id="prod_desc" class="form-control" placeholder="Descripción corta del producto">
+                </div>
+
+                <div class="col-12 d-none" id="panel-variantes">
+                  <div class="p-3 border rounded-3 bg-light">
+                    <h6 class="text-primary mb-3"><i class="bi bi-tags"></i> Detalles de la Variante</h6>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label small">Talla</label>
+                        <input type="text" id="var_talla" class="form-control form-control-sm" placeholder="Ej: M, L, 42...">
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label small">Color</label>
+                        <input type="text" id="var_color" class="form-control form-control-sm" placeholder="Ej: Rojo, Azul...">
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label small">Material</label>
+                        <input type="text" id="var_material" class="form-control form-control-sm" placeholder="Ej: Algodón, Cuero...">
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label small">Presentación</label>
+                        <input type="text" id="var_presentacion" class="form-control form-control-sm" placeholder="Ej: Caja, Unidad...">
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label small">Código de Barras</label>
+                        <input type="text" id="var_codigo_barras" class="form-control form-control-sm" placeholder="Escanea o escribe">
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label small">Stock Mínimo</label>
+                        <input type="number" id="var_stock_minimo" class="form-control form-control-sm" value="5">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 d-flex gap-2">
+                  <button class="btn btn-primary" type="submit"><i class="bi bi-save me-1"></i>Guardar producto</button>
+                  <button class="btn btn-outline-secondary" type="reset">Limpiar</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card panel-card p-3 p-lg-4">
+              <h5 class="mb-3 section-title">Productos registrados</h5>
+              <div class="table-responsive">
+                <table class="table align-middle" id="tabla-productos">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Producto</th>
+                      <th>Categoría</th>
+                      <th>Marca</th>
+                      <th>Precio</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-productos-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="categorias" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4 mb-4">
+              <h5 class="mb-1 section-title">Gestión de categorías</h5>
+              <div class="small-help mb-3">Organiza los productos por tipo y subcategoría</div>
+              <form id="form-categoria" class="row g-3">
+                <div class="col-md-4">
+                  <label class="muted-label">Nombre</label>
+                  <input id="cat_nombre" class="form-control" placeholder="Ej. Camisetas" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Categoría padre</label>
+                  <select id="cat_padre" class="form-select">
+                    <option value="">Ninguna</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Descripción</label>
+                  <input id="cat_desc" class="form-control" placeholder="Descripción corta">
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-primary" type="submit">Guardar categoría</button>
+                </div>
+              </form>
+            </div>
+            <div class="card panel-card p-3 p-lg-4">
+            <h5 class="mb-3 section-title">Lista de categorías</h5>
+            <div class="table-responsive">
+              <table class="table align-middle" id="tabla-categorias">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Categoría Padre</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-categorias-body">
+                  </tbody>
+              </table>
+            </div>
+          </div>
+          </section>
+
+          <section id="proveedores" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4 mb-4">
+              <h5 class="mb-1 section-title">Gestión de proveedores</h5>
+              <div class="small-help mb-3">Registra los proveedores que abastecen el negocio</div>
+              <form id="form-proveedor" class="row g-3">
+                <div class="col-md-4">
+                  <label class="muted-label">Nombre</label>
+                  <input id="prov_nombre" class="form-control" placeholder="Nombre del proveedor" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Correo</label>
+                  <input id="prov_correo" type="email" class="form-control" placeholder="correo@proveedor.com">
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Teléfono</label>
+                  <input id="prov_telefono" class="form-control" placeholder="3001234567">
+                </div>
+                <div class="col-md-6">
+                  <label class="muted-label">Ciudad</label>
+                  <input id="prov_ciudad" class="form-control" placeholder="Cartagena">
+                </div>
+                <div class="col-md-6">
+                  <label class="muted-label">Empresa</label>
+                  <input id="prov_empresa" class="form-control" placeholder="Razón social">
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-primary" type="submit">Guardar proveedor</button>
+                </div>
+              </form>
+            </div>
+            <div class="card panel-card p-3 p-lg-4">
+            <h5 class="mb-3 section-title">Lista de proveedores</h5>
+            <div class="table-responsive">
+              <table class="table align-middle" id="tabla-proveedores">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Empresa</th>
+                    <th>Contacto</th>
+                    <th>Ciudad</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-proveedores-body">
+                  </tbody>
+              </table>
+            </div>
+          </div>
+          </section>
+
+          <section id="inventario" class="section-area hide-section">
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+              <div class="card panel-card p-3 p-lg-4 h-100">
+                <h5 class="mb-1 section-title">Entrada de inventario</h5>
+                <div class="small-help mb-3">Aumenta el stock cuando llega mercancía</div>
+                <form id="form-entrada" class="row g-3">
+                  <div class="col-md-8">
+                    <label class="muted-label">Producto a ingresar</label>
+                    <select id="entrada_variante" class="form-select" required>
+                      <option value="">Cargando productos...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="muted-label">Cantidad</label>
+                    <input id="entrada_cantidad" type="number" class="form-control" placeholder="10" min="1" required>
+                  </div>
+                  <div class="col-12">
+                    <label class="muted-label">Observación</label>
+                    <input id="entrada_obs" class="form-control" placeholder="Ej. Lote nuevo del proveedor">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-success" type="submit"><i class="bi bi-arrow-down-circle me-1"></i>Registrar entrada</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="card panel-card p-3 p-lg-4 h-100">
+                <h5 class="mb-1 section-title">Salida / Merma de inventario</h5>
+                <div class="small-help mb-3">Descuenta stock por ajuste, daño o pérdida</div>
+                <form id="form-salida" class="row g-3">
+                  <div class="col-md-8">
+                    <label class="muted-label">Producto a descontar</label>
+                    <select id="salida_variante" class="form-select" required>
+                      <option value="">Cargando productos...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="muted-label">Cantidad</label>
+                    <input id="salida_cantidad" type="number" class="form-control" placeholder="2" min="1" required>
+                  </div>
+                  <div class="col-12">
+                    <label class="muted-label">Observación</label>
+                    <input id="salida_obs" class="form-control" placeholder="Ej. Producto defectuoso">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-danger" type="submit"><i class="bi bi-arrow-up-circle me-1"></i>Registrar salida</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="card panel-card p-3 p-lg-4">
+            <h5 class="mb-3 section-title">Stock en Bodega</h5>
+            <div class="table-responsive">
+              <table class="table align-middle" id="tabla-inventario">
+                <thead>
+                  <tr>
+                    <th># SKU</th>
+                    <th>Producto</th>
+                    <th>Almacén</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Mínimo</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-inventario-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+          <section id="ventas" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4 mb-4">
+              <h5 class="mb-1 section-title">Registrar venta</h5>
+              <div class="small-help mb-3">Crea pedidos de venta y descuenta inventario</div>
+              <form id="form-venta" class="row g-3">
+                <div class="col-md-4">
+                  <label class="muted-label">N° de Orden / Cliente</label>
+                  <input id="venta_orden" type="text" class="form-control" placeholder="Ej. ORD-001 o Nombre" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Buscar Producto</label>
+                  <input list="lista-productos-venta" id="venta_producto_search" class="form-control" placeholder="Escribe para buscar..." required>
+                  <datalist id="lista-productos-venta">
+                    </datalist>
+                  <input type="hidden" id="venta_variante">
+                </div>
+                <div class="col-md-4">
+                  <label class="muted-label">Cantidad</label>
+                  <input id="venta_cantidad" type="number" class="form-control" placeholder="1" min="1" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="muted-label">Canal de venta</label>
+                  <select id="venta_canal" class="form-select">
+                    <option value="online">Online</option>
+                    <option value="fisica">Física</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="marketplace">Marketplace</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="muted-label">Método de pago</label>
+                  <select id="venta_pago" class="form-select">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="pse">PSE</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-dark" type="submit"><i class="bi bi-bag-check me-1"></i>Procesar Venta</button>
+                </div>
+              </form>
+            </div>
+            
+            <div class="card panel-card p-3 p-lg-4">
+              <h5 class="mb-3 section-title">Historial de Ventas</h5>
+              <div class="table-responsive">
+                <table class="table align-middle" id="tabla-ventas">
+                  <thead>
+                    <tr>
+                      <th># Pedido</th>
+                      <th>Fecha</th>
+                      <th>Cliente / Orden</th>
+                      <th>Artículos</th>
+                      <th>Canal / Pago</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-ventas-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="alertas" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4">
+              <h5 class="mb-3 section-title">Monitor de Alertas</h5>
+              <div class="table-responsive">
+                <table class="table align-middle" id="tabla-alertas">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Tipo de Evento</th>
+                      <th>Stock Actual</th>
+                      <th>Punto de reorden</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-alertas-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="reportes" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4 mb-4">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div>
+                  <h5 class="mb-1 section-title">Dashboard Analítico</h5>
+                  <div class="small-help">Indicadores Clave de Rendimiento (KPIs)</div>
+                </div>
+                <button class="btn btn-outline-primary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Exportar PDF</button>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="border rounded-4 p-3 bg-light h-100">
+                    <div class="fw-semibold text-secondary">Índice de Rotación</div>
+                    <div class="display-6 mb-0 text-dark" id="kpi-rotacion">0.0<span class="fs-6 text-muted">x</span></div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="border rounded-4 p-3 bg-light h-100">
+                    <div class="fw-semibold text-secondary">Volumen de Ventas (MTD)</div>
+                    <div class="display-6 mb-0 text-dark" id="kpi-volumen">0</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="border rounded-4 p-3 bg-light h-100">
+                    <div class="fw-semibold text-secondary">Ingresos (Proyectados)</div>
+                    <div class="display-6 mb-0 text-dark" id="kpi-ingresos">$0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="usuarios" class="section-area hide-section admin-only">
+            <div class="card panel-card p-3 p-lg-4 mb-4">
+              <h5 class="mb-1 section-title">Registrar Nuevo Empleado</h5>
+              <div class="small-help mb-3">Crea credenciales de acceso para tu personal</div>
+              <form id="form-nuevo-usuario" class="row g-3">
+                <div class="col-md-3">
+                  <label class="muted-label">Nombre Completo</label>
+                  <input id="usr_nombre" class="form-control" placeholder="Ej. Ana Pérez" required>
+                </div>
+                <div class="col-md-3">
+                  <label class="muted-label">Correo (Usuario)</label>
+                  <input id="usr_correo" type="email" class="form-control" placeholder="ana@omnisynch.com" required>
+                </div>
+                <div class="col-md-3">
+                  <label class="muted-label">Contraseña Temporal</label>
+                  <input id="usr_pass" type="text" class="form-control" placeholder="123456" required>
+                </div>
+                <div class="col-md-3">
+                  <label class="muted-label">Rol del Sistema</label>
+                  <select id="usr_rol" class="form-select" required>
+                    <option value="operador">Operador (Inventario)</option>
+                    <option value="vendedor">Vendedor (Solo POS)</option>
+                    <option value="gerente">Gerente (Reportes)</option>
+                    <option value="admin">Administrador (Total)</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-primary" type="submit"><i class="bi bi-person-plus me-1"></i>Crear Usuario</button>
+                </div>
+              </form>
+            </div>
+            
+            <div class="card panel-card p-3 p-lg-4">
+              <h5 class="mb-3 section-title">Empleados Activos</h5>
+              <div class="table-responsive">
+                <table class="table align-middle" id="tabla-usuarios">
+                  <thead>
+                    <tr>
+                      <th># ID</th>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-usuarios-body">
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-header border-0 pb-0">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="text-center mb-4">
+              <i class="bi bi-person-circle text-primary" style="font-size: 3rem;"></i>
+              <h5 class="fw-bold mt-2">Configuración de Perfil</h5>
+              <p class="text-muted small">Actualiza tu información personal</p>
+          </div>
+          <form id="form-perfil-usuario">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Nombre Completo</label>
+              <input type="text" class="form-control form-control-lg fs-6" id="perfil_nombre" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-bold">Nueva Contraseña</label>
+              <input type="password" class="form-control form-control-lg fs-6" id="perfil_pass" placeholder="Dejar en blanco para no cambiar">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">
+              Guardar Cambios
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/guard.js"></script> <script src="js/app.js"></script>
+</body>
+</html>

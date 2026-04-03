@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaStyle | Tienda Online</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root { --dark: #111111; --gray: #f4f4f4; --accent: #d97706; }
+    body { font-family: 'Inter', sans-serif; color: var(--dark); background-color: #ffffff; }
+    h1, h2, h3, .brand-font { font-family: 'Playfair Display', serif; }
+    .top-promo { background-color: var(--dark); color: white; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; padding: 8px 0; }
+    .navbar-light { background-color: #ffffff; border-bottom: 1px solid #eeeeee; padding: 15px 0; }
+    .navbar-brand { font-size: 1.8rem; font-weight: 600; letter-spacing: -1px; }
+    .nav-link { color: var(--dark); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin: 0 10px; cursor: pointer; transition: color 0.3s; }
+    .nav-link:hover, .nav-link.active { color: var(--accent); font-weight: bold; }
+    .cart-badge { position: absolute; top: -5px; right: -8px; background-color: var(--accent); font-size: 0.65rem; padding: 3px 6px; border-radius: 50%; }
+    .hero { height: 60vh; background-image: url('https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600&auto=format&fit=crop'); background-size: cover; background-position: center 20%; position: relative; display: flex; align-items: center; }
+    .hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 100%); }
+    .hero-content { position: relative; z-index: 2; max-width: 500px; }
+    .btn-dark-custom { background-color: var(--dark); color: white; border: 1px solid var(--dark); border-radius: 0; padding: 12px 30px; text-transform: uppercase; font-size: 0.85rem; transition: all 0.3s ease; }
+    .btn-dark-custom:hover { background-color: transparent; color: var(--dark); }
+    .product-card { border: none; transition: transform 0.3s ease; }
+    .product-img-wrapper { position: relative; overflow: hidden; aspect-ratio: 3/4; background-color: var(--gray); display: flex; align-items: center; justify-content: center; }
+    .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .product-card:hover .product-img { transform: scale(1.05); }
+    .btn-add-cart { position: absolute; bottom: -50px; left: 0; right: 0; background: rgba(255,255,255,0.95); color: var(--dark); border: none; padding: 15px; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s ease; opacity: 0; }
+    .product-card:hover .btn-add-cart { bottom: 0; opacity: 1; }
+    .btn-add-cart:hover { background: var(--dark); color: white; }
+    .badge-stock { position: absolute; top: 15px; left: 15px; background-color: white; color: var(--dark); font-size: 0.7rem; font-weight: 600; padding: 5px 10px; z-index: 2; }
+    .nav-tabs .nav-link { border: none; border-bottom: 2px solid transparent; }
+    .nav-tabs .nav-link.active { border-bottom: 2px solid var(--dark); background: transparent; }
+    .img-placeholder { font-size: 3rem; color: #ccc; }
+    
+    /* Estilos del Footer */
+    .powered-by { background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 15px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="top-promo text-center">Envíos gratis en compras superiores a $150.000 COP</div>
+
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm">
+    <div class="container">
+      <button class="navbar-toggler border-0 px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <i class="bi bi-list fs-1"></i>
+      </button>
+
+      <a class="navbar-brand brand-font mx-auto mx-lg-0" href="#" onclick="cargarProductos('')">NovaStyle.</a>
+
+      <div class="d-flex d-lg-none position-relative ms-auto gap-3 align-items-center">
+        <a href="#" class="text-dark fs-4" onclick="gestionarCuenta()"><i class="bi bi-person"></i></a>
+        <a href="#" class="text-dark fs-4 position-relative" onclick="abrirCarrito()">
+          <i class="bi bi-bag"></i>
+          <span class="cart-badge text-white cart-count-display">0</span>
+        </a>
+      </div>
+
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" onclick="cargarProductos('Novedades')">Novedades</a></li>
+          <li class="nav-item"><a class="nav-link" onclick="cargarProductos('Mujer')">Mujer</a></li>
+          <li class="nav-item"><a class="nav-link" onclick="cargarProductos('Hombre')">Hombre</a></li>
+          <li class="nav-item"><a class="nav-link text-danger" onclick="cargarProductos('Sale')">Sale</a></li>
+        </ul>
+      </div>
+
+      <div class="d-none d-lg-flex align-items-center gap-4">
+        <span id="nav-cliente-nombre" class="small fw-bold text-muted d-none"></span>
+        <a href="#" class="text-dark fs-5" onclick="gestionarCuenta()" title="Mi Cuenta"><i class="bi bi-person"></i></a>
+        <div class="d-flex align-items-center gap-3">
+          <a href="#" class="text-dark fs-5 position-relative" onclick="abrirCarrito()">
+            <i class="bi bi-bag"></i>
+            <span class="cart-badge text-white cart-count-display">0</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container">
+      <div class="hero-content p-4 p-md-0">
+        <h1 class="display-3 fw-bold mb-4">El arte de vestir con propósito.</h1>
+        <p class="lead text-muted mb-5">Conectado en tiempo real con OmniSynch Automations.</p>
+        <a href="#productos" class="btn btn-dark-custom">Ver Catálogo</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="productos" class="py-5 mt-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <h2 class="brand-font m-0" id="titulo-categoria">Catálogo Completo</h2>
+      </div>
+      <div class="row g-4" id="contenedor-productos">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-dark" role="status"></div>
+          <p class="mt-2 text-muted">Cargando catálogo desde la base de datos...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-dark text-white pt-5 mt-5">
+    <div class="container pb-4">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h3 class="brand-font mb-4">NovaStyle.</h3>
+          <p class="text-white-50 small">Redefiniendo los básicos del día a día con materiales sostenibles y diseño atemporal.</p>
+        </div>
+        <div class="col-md-4">
+          <h6 class="text-uppercase tracking-wider mb-4 text-white">Atención al cliente</h6>
+          <ul class="list-unstyled text-white-50 small lh-lg">
+            <li><a href="#" class="text-white-50 text-decoration-none">Cambios y Devoluciones</a></li>
+            <li><a href="#" class="text-white-50 text-decoration-none">Preguntas Frecuentes</a></li>
+            <li><a href="#" class="text-white-50 text-decoration-none">Guía de Tallas</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h6 class="text-uppercase tracking-wider mb-4 text-white">Suscríbete</h6>
+          <p class="text-white-50 small">Recibe 10% de descuento en tu primera compra.</p>
+          <div class="input-group mb-3">
+            <input type="email" class="form-control rounded-0 border-0" placeholder="Tu correo electrónico">
+            <button class="btn btn-light rounded-0 px-4 fw-bold" type="button">Unirme</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="powered-by text-center mt-4 bg-white">
+      <p class="text-muted small mb-0 py-2 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-shield-check text-success"></i> 
+        Tienda segura. Inventario impulsado por 
+        <a href="login.html" class="fw-bold text-dark text-decoration-none" target="_blank">
+          <i class="bi bi-box-seam text-primary ms-1"></i> OmniSynch Automations
+        </a>
+      </p>
+    </div>
+  </footer>
+
+  <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-header border-0 pb-0">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body px-5 pb-5 pt-2">
+          <ul class="nav nav-tabs nav-fill border-0 mb-4" role="tablist">
+            <li class="nav-item"><button class="nav-link active text-dark fw-bold brand-font fs-5" data-bs-toggle="tab" data-bs-target="#login-tab">Ingresar</button></li>
+            <li class="nav-item"><button class="nav-link text-muted fw-bold brand-font fs-5" data-bs-toggle="tab" data-bs-target="#register-tab">Crear Cuenta</button></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="login-tab">
+              <form id="form-login-cliente">
+                <div class="mb-3"><input type="email" id="login_correo" class="form-control rounded-3 p-3 bg-light border-0" placeholder="Correo Electrónico" required></div>
+                <div class="mb-4"><input type="password" id="login_pass" class="form-control rounded-3 p-3 bg-light border-0" placeholder="Contraseña" required></div>
+                <button type="submit" class="btn btn-dark-custom w-100 rounded-3 mb-3">Iniciar Sesión</button>
+              </form>
+            </div>
+            <div class="tab-pane fade" id="register-tab">
+              <form id="form-registro-cliente">
+                <div class="mb-3"><input type="text" id="reg_nombre" class="form-control rounded-3 p-3 bg-light border-0" placeholder="Nombre Completo" required></div>
+                <div class="mb-3"><input type="email" id="reg_correo" class="form-control rounded-3 p-3 bg-light border-0" placeholder="Correo Electrónico" required></div>
+                <div class="mb-4"><input type="password" id="reg_pass" class="form-control rounded-3 p-3 bg-light border-0" placeholder="Crea una contraseña" required></div>
+                <button type="submit" class="btn btn-dark-custom w-100 rounded-3 mb-3">Registrarme</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    const API_URL = 'http://localhost:3000/api'; 
+    let carrito = JSON.parse(localStorage.getItem('novastyle_carrito')) || [];
+    let clienteAutenticado = JSON.parse(localStorage.getItem('novastyle_cliente')) || null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      actualizarInterfazCliente();
+      actualizarContadorCarrito();
+      cargarProductos(''); 
+    });
+
+    async function cargarProductos(categoriaStr) {
+      const contenedor = document.getElementById('contenedor-productos');
+      const titulo = document.getElementById('titulo-categoria');
+      titulo.innerText = categoriaStr ? categoriaStr : 'Catálogo Completo';
+      
+      contenedor.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-dark"></div></div>';
+
+      try {
+        const res = await fetch(`${API_URL}/productos`);
+        let productos = await res.json();
+        console.log("Productos recibidos del backend:", productos); // 💡 Útil para revisar en la consola F12
+
+        if (categoriaStr) {
+          productos = productos.filter(p => p.nombre_categoria && p.nombre_categoria.toLowerCase().includes(categoriaStr.toLowerCase()));
+        }
+
+        contenedor.innerHTML = '';
+
+        if (productos.length === 0) {
+          contenedor.innerHTML = '<div class="col-12 text-center py-5 text-muted">No hay productos en esta categoría.</div>';
+          return;
+        }
+
+        productos.forEach(prod => {
+          const sinStock = prod.estado === 'inactivo' || prod.stock_actual <= 0;
+          
+          let btnHTML = sinStock 
+            ? `<button class="btn-add-cart w-100 bg-dark text-white" onclick="Swal.fire('Agotado', 'Este producto no tiene stock.', 'info')">Agotado</button>`
+            : `<button class="btn-add-cart w-100" onclick="agregarAlCarrito(${prod.id_producto}, '${prod.nombre}', ${prod.precio_venta_base || prod.precio_venta})">Agregar al bolso</button>`;
+
+          // 💡 FIX DE IMÁGENES: Lee la propiedad imagen_url
+          let imgHTML = prod.imagen_url && prod.imagen_url.trim() !== ''
+            ? `<img src="${prod.imagen_url}" class="product-img" alt="${prod.nombre}">`
+            : `<div class="img-placeholder" title="Sin imagen"><i class="bi bi-image"></i></div>`;
+
+          contenedor.innerHTML += `
+            <div class="col-6 col-md-3">
+              <div class="card product-card h-100">
+                <div class="product-img-wrapper" style="${sinStock ? 'opacity:0.6;' : ''}">
+                  ${sinStock ? '<span class="badge-stock bg-dark text-white border-0">Agotado</span>' : ''}
+                  ${imgHTML}
+                  ${btnHTML}
+                </div>
+                <div class="card-body px-0 pt-3 pb-0 text-center">
+                  <h6 class="mb-1 fw-bold text-truncate">${prod.nombre}</h6>
+                  <p class="text-muted small mb-0">$${(prod.precio_venta_base || prod.precio_venta || 0).toLocaleString('es-CO')} COP</p>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+        contenedor.innerHTML = '<div class="col-12 text-center py-5 text-danger">Error de conexión con el servidor OmniSynch.</div>';
+      }
+    }
+
+    function agregarAlCarrito(id, nombre, precio) {
+      if (!clienteAutenticado) {
+        Swal.fire('Inicia Sesión', 'Debes tener una cuenta para agregar al carrito.', 'warning');
+        abrirModalUsuario();
+        return;
+      }
+      carrito.push({ id, nombre, precio });
+      localStorage.setItem('novastyle_carrito', JSON.stringify(carrito));
+      actualizarContadorCarrito();
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '¡Agregado!', text: nombre, showConfirmButton: false, timer: 1500 });
+    }
+
+    function actualizarContadorCarrito() {
+      const contadores = document.querySelectorAll('.cart-count-display');
+      contadores.forEach(el => el.innerText = carrito.length);
+    }
+
+    function abrirModalUsuario() {
+      new bootstrap.Modal(document.getElementById('modalUsuario')).show();
+    }
+
+    function gestionarCuenta() {
+      if (clienteAutenticado) {
+        Swal.fire({
+          title: 'Mi Cuenta',
+          text: `Hola ${clienteAutenticado.nombre}. ¿Deseas cerrar sesión?`,
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'Cerrar Sesión'
+        }).then((res) => {
+          if(res.isConfirmed) {
+            localStorage.removeItem('novastyle_cliente');
+            localStorage.removeItem('novastyle_carrito');
+            clienteAutenticado = null;
+            carrito = [];
+            actualizarInterfazCliente();
+            actualizarContadorCarrito();
+            Swal.fire('Sesión Cerrada', '', 'success');
+          }
+        });
+      } else {
+        abrirModalUsuario();
+      }
+    }
+
+    document.getElementById('form-login-cliente').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const correo = document.getElementById('login_correo').value;
+      clienteAutenticado = { id_cliente: 1, nombre: correo.split('@')[0], correo: correo };
+      localStorage.setItem('novastyle_cliente', JSON.stringify(clienteAutenticado));
+      actualizarInterfazCliente();
+      bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
+      Swal.fire('¡Bienvenido!', 'Sesión iniciada correctamente', 'success');
+    });
+
+    function actualizarInterfazCliente() {
+      const labelUser = document.getElementById('nav-cliente-nombre');
+      if (clienteAutenticado) {
+        labelUser.innerText = `Hola, ${clienteAutenticado.nombre}`;
+        labelUser.classList.remove('d-none');
+      } else {
+        labelUser.classList.add('d-none');
+      }
+    }
+
+    async function abrirCarrito() {
+      if (!clienteAutenticado) { abrirModalUsuario(); return; }
+      if (carrito.length === 0) { Swal.fire('Bolso Vacío', 'Agrega productos antes de pagar.', 'info'); return; }
+
+      let subtotal = carrito.reduce((acc, item) => acc + parseFloat(item.precio), 0);
+      let costo_envio = subtotal >= 150000 ? 0 : 15000;
+      let impuesto = subtotal * 0.19;
+      let total = subtotal + costo_envio + impuesto;
+      const formato = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+
+      Swal.fire({
+        title: 'Checkout',
+        html: `
+          <div class="text-start mt-3">
+            <p>Has seleccionado <b>${carrito.length} artículos</b>.</p>
+            <hr>
+            <div class="d-flex justify-content-between"><span>Subtotal:</span> <b>${formato.format(subtotal)}</b></div>
+            <div class="d-flex justify-content-between"><span>Envío:</span> <b>${costo_envio === 0 ? 'Gratis' : formato.format(costo_envio)}</b></div>
+            <div class="d-flex justify-content-between"><span>IVA (19%):</span> <b>${formato.format(impuesto)}</b></div>
+            <hr>
+            <h4 class="d-flex justify-content-between text-dark"><span>TOTAL:</span> <b>${formato.format(total)}</b></h4>
+          </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar y Pagar',
+        cancelButtonText: 'Cancelar'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const ordenVenta = {
+            numero_orden: 'WEB-' + Date.now(),
+            id_cliente: clienteAutenticado.id_cliente,
+            id_usuario: null,
+            canal_venta: 'online',
+            estado: 'pagada',
+            subtotal: subtotal,
+            descuento_total: 0,
+            impuesto_total: impuesto,
+            costo_envio: costo_envio,
+            total: total,
+            observaciones: 'Compra online NovaStyle'
+          };
+          try {
+            const res = await fetch(`${API_URL}/ventas`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(ordenVenta)
+            });
+            if(res.ok) {
+              Swal.fire('¡Pago Exitoso!', 'Tu orden está en OmniSynch.', 'success');
+              carrito = [];
+              localStorage.removeItem('novastyle_carrito');
+              actualizarContadorCarrito();
+            } else {
+              Swal.fire('Error', 'Problema registrando tu orden.', 'error');
+            }
+          } catch (error) {
+            Swal.fire('Error', 'Falla de conexión backend.', 'error');
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

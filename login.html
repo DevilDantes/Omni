@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniSynch Automations | Iniciar Sesión</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-dark: #0b0f19;
+      --accent-blue: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg-gray: #f8fafc;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-gray);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .login-card {
+      border: none;
+      border-radius: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      max-width: 1000px;
+      width: 100%;
+      background: #ffffff;
+    }
+
+    /* Panel Lateral del Login */
+    .bg-login-image {
+      background-image: linear-gradient(135deg, rgba(11, 15, 25, 0.9), rgba(37, 99, 235, 0.8)), url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=800&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-blue);
+      color: white;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Botones y Enlaces */
+    .btn-primary-custom {
+      background-color: var(--accent-blue);
+      color: white;
+      border: none;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .btn-primary-custom:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    }
+    
+    .form-control {
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #cbd5e1;
+    }
+    .form-control:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.1);
+    }
+
+    .forgot-link, .back-link {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .forgot-link:hover, .back-link:hover {
+      color: var(--accent-blue);
+    }
+    .back-link:hover {
+      transform: translateX(-3px);
+    }
+    
+    .floating-label-custom {
+      color: #64748b;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-5">
+    <div class="card login-card mx-auto">
+      <div class="row g-0 h-100">
+        
+        <div class="col-md-5 d-none d-md-flex bg-login-image flex-column justify-content-between p-5 text-white">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-4">
+              <i class="bi bi-box-seam fs-4"></i>
+              <span class="fw-bold fs-5 tracking-tight">OmniSynch</span>
+            </div>
+            <h2 class="fw-bold mb-3 display-6">Bienvenido de nuevo.</h2>
+            <p class="text-white-50 fs-6">
+              Accede a tu panel de control para gestionar el inventario, revisar reportes en tiempo real y optimizar tu operación.
+            </p>
+          </div>
+          
+          <div class="bg-white bg-opacity-10 p-4 rounded-4 border border-light border-opacity-10 backdrop-blur">
+            <div class="d-flex text-warning mb-2">
+              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+            </div>
+            <p class="small text-white mb-2 fw-medium">"Desde que implementamos OmniSynch Automations, nuestras mermas de inventario se redujeron a cero. Una herramienta indispensable."</p>
+            <p class="small text-white-50 mb-0">- Director de Operaciones</p>
+          </div>
+        </div>
+
+        <div class="col-md-7 bg-white p-4 p-lg-5 position-relative d-flex flex-column justify-content-center">
+          <div class="px-md-4">
+            
+            <div class="text-center text-md-start mb-4">
+              <div class="brand-logo d-md-none shadow-sm">
+                <i class="bi bi-box-seam"></i>
+              </div>
+              <h3 class="fw-bold text-dark mb-1">Iniciar Sesión</h3>
+              <p class="text-muted">Ingresa tus credenciales para acceder al sistema</p>
+            </div>
+
+            <form id="form-login">
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="correo" placeholder="nombre@ejemplo.com" required>
+                <label for="correo" class="floating-label-custom"><i class="bi bi-envelope me-2"></i>Correo Corporativo</label>
+              </div>
+
+              <div class="form-floating mb-2">
+                <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                <label for="password" class="floating-label-custom"><i class="bi bi-lock me-2"></i>Contraseña</label>
+              </div>
+              
+              <div class="d-flex justify-content-end mb-4">
+                <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#modalRecuperar">¿Olvidaste tu contraseña?</a>
+              </div>
+
+              <button type="submit" class="btn btn-primary-custom w-100 py-3 mb-3">
+                Ingresar al Sistema <i class="bi bi-box-arrow-in-right ms-2"></i>
+              </button>
+            </form>
+
+            <div id="login-alert" class="alert alert-danger mt-3 d-none border-0 bg-danger bg-opacity-10 text-danger" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> Credenciales incorrectas o usuario inactivo.
+            </div>
+
+            <div class="text-center mt-5">
+              <a href="landing.html" class="back-link d-inline-block">
+                <i class="bi bi-arrow-left me-1"></i> Volver a la página principal
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalRecuperar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 p-2">
+        <div class="modal-header border-0 pb-0">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 pt-2">
+          <div class="text-center mb-4">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+              <i class="bi bi-key fs-1"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Recuperar Contraseña</h4>
+            <p class="text-muted small">Ingresa el correo electrónico asociado a tu cuenta y te enviaremos las instrucciones para restablecerla.</p>
+          </div>
+          
+          <form id="form-recuperar">
+            <div class="mb-4">
+              <label class="form-label fw-semibold text-muted small">Correo Electrónico</label>
+              <input type="email" class="form-control form-control-lg fs-6" placeholder="ejemplo@empresa.com" required>
+            </div>
+            <button type="submit" class="btn btn-primary-custom w-100 py-3">
+              Enviar enlace de recuperación
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="login.js"></script>
+
+  <script>
+    document.getElementById('form-recuperar').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const btn = this.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      
+      // Animación de carga
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Enviando...';
+      btn.disabled = true;
+
+      // Simulamos la llamada al servidor (1.5 segundos)
+      setTimeout(() => {
+        // Restaurar estado
+        this.reset();
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Cerrar modal
+        const modalEl = document.getElementById('modalRecuperar');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        // Alerta de éxito profesional
+        Swal.fire({
+          title: '¡Correo Enviado!',
+          text: 'Si el correo existe en nuestra base de datos, recibirás un enlace de recuperación en los próximos minutos.',
+          icon: 'success',
+          confirmButtonColor: '#2563eb',
+          confirmButtonText: 'Entendido'
+        });
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
