@@ -80,3 +80,12 @@ body {
   transform: translateX(-20px);
   white-space: nowrap;
 }
+/* Animación segura para la topbar con sticky-top */
+.topbar {
+  transition: top 0.3s ease-in-out !important;
+}
+
+/* Esconde la barra moviendo su punto de anclaje hacia arriba */
+.topbar-oculta {
+  top: -120px !important; 
+}

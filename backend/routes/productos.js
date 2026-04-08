@@ -10,6 +10,7 @@ router.get('/', async (req, res) => {
       SELECT 
         p.id_producto, 
         p.nombre, 
+        p.imagen_url,         /* 💡 AÑADIDO: Solo agregué esta línea para que traiga la foto */
         c.nombre AS nombre_categoria,  
         m.nombre AS nombre_marca,      
         prov.nombre AS nombre_proveedor, 
@@ -34,7 +35,7 @@ router.post('/', async (req, res) => {
     const {
       nombre, id_categoria, id_marca, id_proveedor,
       precio_compra, precio_venta, tipo, descripcion,
-      // 💡 NUEVOS DATOS QUE LLEGAN DEL FRONTEND:
+      imagen_url,            /* 💡 AÑADIDO: Permite recibir la foto cuando crees un producto nuevo */
       talla, color, material, presentacion, codigo_barras, stock_minimo
     } = req.body;
 
@@ -45,8 +46,8 @@ router.post('/', async (req, res) => {
     const [prodResult] = await db.query(`
       INSERT INTO productos (
         codigo_base, nombre, descripcion, id_categoria, id_marca, id_proveedor,
-        tipo_producto, precio_compra_base, precio_venta_base, impuesto_porcentaje, estado
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'activo')
+        tipo_producto, precio_compra_base, precio_venta_base, impuesto_porcentaje, estado, imagen_url
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'activo', ?)
     `, [
       codigoBase,
       nombre,
@@ -56,7 +57,8 @@ router.post('/', async (req, res) => {
       id_proveedor || null, 
       tipo || 'simple',     
       precio_compra || 0,
-      precio_venta || 0
+      precio_venta || 0,
+      imagen_url || null      /* 💡 AÑADIDO: Guarda la foto en la base de datos */
     ]);
 
     const idProducto = prodResult.insertId; 

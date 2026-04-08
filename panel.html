@@ -13,9 +13,11 @@
     <div class="row">
       <aside class="col-12 col-lg-2 sidebar p-3 p-lg-4">
         <div class="d-flex align-items-center gap-2 mb-4">
-          <div class="rounded-4 d-flex align-items-center justify-content-center logo-icon">
-            <i class="bi bi-box-seam fs-4"></i>
+          
+          <div class="rounded-4 d-flex align-items-center justify-content-center logo-icon" style="overflow: hidden; background-color: white; width: 40px; height: 40px; padding: 0;">
+            <img src="img/OmniSync_Isotipo_ver2_NoBackground.png" alt="Logo OmniSync" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
+          
           <div>
             <div class="brand">OmniSynch</div>
             <small class="text-white-50">Automations</small>
@@ -29,21 +31,16 @@
           <a class="nav-link" href="#" onclick="UI.showSection('proveedores'); return false;"><i class="bi bi-truck me-2"></i>Proveedores</a>
           <a class="nav-link" href="#" onclick="UI.showSection('inventario'); return false;"><i class="bi bi-boxes me-2"></i>Inventario</a>
           <a class="nav-link" href="#" onclick="UI.showSection('ventas'); return false;"><i class="bi bi-cart-check me-2"></i>Ventas</a>
+          
+          <a class="nav-link" href="#" onclick="UI.showSection('clientes'); return false;"><i class="bi bi-person-vcard me-2"></i>Clientes</a>
+          
           <a class="nav-link" href="#" onclick="UI.showSection('alertas'); return false;"><i class="bi bi-bell me-2"></i>Alertas</a>
           <a class="nav-link" href="#" onclick="UI.showSection('reportes'); return false;"><i class="bi bi-graph-up-arrow me-2"></i>Reportes</a>
           <a class="nav-link admin-only" href="#" onclick="UI.showSection('usuarios'); return false;"><i class="bi bi-people me-2"></i>Usuarios</a>
         </nav>
-
-        <hr class="border-light border-opacity-10 my-4">
-        <div class="d-flex align-items-center justify-content-between small text-white-50 mt-auto">
-          <span>v2.4.1 (Estable)</span>
-          <span class="d-flex align-items-center gap-1">
-            <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span> Online
-          </span>
-        </div>
       </aside>
 
-      <main class="col-12 col-lg-10 p-0">
+      <main class="col-12 col-lg-10 p-0 d-flex flex-column min-vh-100">
         <div class="topbar px-3 px-lg-4 py-3 sticky-top">
           <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
@@ -567,6 +564,34 @@
             </div>
           </section>
 
+          <section id="clientes" class="section-area hide-section">
+            <div class="card panel-card p-3 p-lg-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h5 class="mb-1 section-title">Gestión de Clientes</h5>
+                  <div class="small-help">Compradores registrados desde la tienda virtual</div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary" onclick="cargarClientesAdmin()"><i class="bi bi-arrow-clockwise"></i> Refrescar</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle table-hover" id="tabla-clientes-admin">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nombre Completo</th>
+                      <th>Correo Electrónico</th>
+                      <th>Teléfono</th>
+                      <th>Dirección</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-clientes-body">
+                    <tr><td colspan="5" class="text-center text-muted py-4">Cargando clientes desde la base de datos...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
           <section id="alertas" class="section-area hide-section">
             <div class="card panel-card p-3 p-lg-4">
               <h5 class="mb-3 section-title">Monitor de Alertas</h5>
@@ -589,36 +614,111 @@
           </section>
 
           <section id="reportes" class="section-area hide-section">
-            <div class="card panel-card p-3 p-lg-4 mb-4">
-              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                <div>
-                  <h5 class="mb-1 section-title">Dashboard Analítico</h5>
-                  <div class="small-help">Indicadores Clave de Rendimiento (KPIs)</div>
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <div>
+              <h5 class="mb-1 section-title">Dashboard Analítico</h5>
+              <div class="small-help">Monitorea el rendimiento y los KPIs en tiempo real</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary btn-sm bg-white shadow-sm"><i class="bi bi-calendar3 me-1"></i> Este Mes</button>
+              <button class="btn btn-primary btn-sm shadow-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i> Exportar PDF</button>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-2 rounded-3">
+                      <i class="bi bi-arrow-repeat text-warning fs-5"></i>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 border border-success border-opacity-25">
+                      <i class="bi bi-arrow-up-right fw-bold"></i> Óptimo
+                    </span>
+                  </div>
+                  <p class="text-muted mb-1 small fw-bold text-uppercase tracking-wider">Índice de Rotación</p>
+                  <h3 class="fw-bold mb-0 text-dark" id="kpi-rotacion">0.0<span class="fs-6 text-muted">x</span></h3>
                 </div>
-                <button class="btn btn-outline-primary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Exportar PDF</button>
               </div>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <div class="border rounded-4 p-3 bg-light h-100">
-                    <div class="fw-semibold text-secondary">Índice de Rotación</div>
-                    <div class="display-6 mb-0 text-dark" id="kpi-rotacion">0.0<span class="fs-6 text-muted">x</span></div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 p-2 rounded-3">
+                      <i class="bi bi-box-seam text-info fs-5"></i>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 border border-success border-opacity-25">
+                      <i class="bi bi-arrow-up-right fw-bold"></i> +5.2%
+                    </span>
                   </div>
+                  <p class="text-muted mb-1 small fw-bold text-uppercase tracking-wider">Volumen de Ventas (MTD)</p>
+                  <h3 class="fw-bold mb-0 text-dark" id="kpi-volumen">0</h3>
                 </div>
-                <div class="col-md-4">
-                  <div class="border rounded-4 p-3 bg-light h-100">
-                    <div class="fw-semibold text-secondary">Volumen de Ventas (MTD)</div>
-                    <div class="display-6 mb-0 text-dark" id="kpi-volumen">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3">
+                      <i class="bi bi-currency-dollar text-primary fs-5"></i>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 border border-success border-opacity-25">
+                      <i class="bi bi-arrow-up-right fw-bold"></i> +12.5%
+                    </span>
                   </div>
+                  <p class="text-muted mb-1 small fw-bold text-uppercase tracking-wider">Ingresos (Proyectados)</p>
+                  <h3 class="fw-bold mb-0 text-dark" id="kpi-ingresos">$0</h3>
                 </div>
-                <div class="col-md-4">
-                  <div class="border rounded-4 p-3 bg-light h-100">
-                    <div class="fw-semibold text-secondary">Ingresos (Proyectados)</div>
-                    <div class="display-6 mb-0 text-dark" id="kpi-ingresos">$0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            
+            <div class="col-12 col-lg-8">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                      <h6 class="fw-bold mb-0">Rendimiento de Ventas</h6>
+                      <span class="text-muted small">Evolución de los últimos 7 meses</span>
+                    </div>
+                  </div>
+                  
+                  <div id="grafico-barras" class="d-flex align-items-end justify-content-between pt-3 flex-grow-1" style="min-height: 220px; gap: 12px;">
+                  </div>
+                  
+                  <div id="grafico-etiquetas" class="d-flex justify-content-between mt-3 text-muted small fw-bold px-2">
                   </div>
                 </div>
               </div>
             </div>
-          </section>
+
+            <div class="col-12 col-lg-4">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                  <h6 class="fw-bold mb-4"><i class="bi bi-star-fill text-warning me-2"></i>Top Ventas Mensuales</h6>
+                  
+                  <div id="top-productos-lista">
+                    <div class="text-center text-muted mt-4">
+                      <div class="spinner-border spinner-border-sm mb-2"></div> 
+                      <p>Analizando ventas...</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+          
           <section id="usuarios" class="section-area hide-section admin-only">
             <div class="card panel-card p-3 p-lg-4 mb-4">
               <h5 class="mb-1 section-title">Registrar Nuevo Empleado</h5>
@@ -672,6 +772,24 @@
             </div>
           </section>
         </div>
+
+        <footer class="footer py-3 px-4 mt-auto border-top" style="background-color: transparent;">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-muted">
+            <div class="fw-medium">
+              &copy; <script>document.write(new Date().getFullYear())</script> OmniSynch Automations. Todos los derechos reservados.
+            </div>
+            <div class="d-flex align-items-center gap-3 fw-semibold">
+              <a href="#" class="text-decoration-none text-muted">Soporte Técnico</a>
+              <span class="text-black-25">|</span>
+              <span>v2.4.1 (Estable)</span>
+              <span class="text-black-25">|</span>
+              <span class="d-flex align-items-center gap-1 text-success">
+                <span class="spinner-grow spinner-grow-sm bg-success" style="width: 8px; height: 8px; animation-duration: 2s;"></span> Online
+              </span>
+            </div>
+          </div>
+        </footer>
+
       </main>
     </div>
   </div>
@@ -710,6 +828,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/guard.js"></script> <script src="js/app.js"></script>
+  <script src="js/guard.js"></script> 
+  <script src="js/app.js"></script>
 </body>
 </html>

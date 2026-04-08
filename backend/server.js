@@ -13,6 +13,7 @@ import reportes from './routes/reportes.js';
 import marcas from './routes/marcas.js';
 import auth from './routes/auth.js';
 import usuarios from './routes/usuarios.js';
+import clientes from './routes/clientes.js';
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/ventas', ventas);
 app.use('/api/reportes', reportes);
 app.use('/api/marcas', marcas);
 app.use('/api/usuarios', usuarios);
+app.use('/api/clientes', clientes);
 
 app.get('/api/health', async (req, res) => {
     try {

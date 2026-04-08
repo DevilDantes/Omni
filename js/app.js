@@ -20,12 +20,13 @@ const App = {
     App.cargarMarcas(); 
     App.cargarVentas(); 
     App.cargarReportes(); 
-    App.cargarUsuarios(); // 💡 Llama a la tabla de usuarios
+    App.cargarUsuarios(); 
     
     App.chequearEstadoReal();
     setInterval(App.chequearEstadoReal, 15000);
     
     setInterval(App.cargarAlertas, 15000); 
+    setInterval(App.cargarVentas, 15000); 
   },
 
   actualizarInterfazUsuario: () => {
@@ -47,7 +48,6 @@ const App = {
       const inputNombre = document.getElementById('perfil_nombre');
       if (inputNombre) inputNombre.value = user.nombre;
 
-      // 🛡️ Restricciones para el Empleado (Operador/Vendedor)
       if (user.rol !== 'admin') {
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => el.classList.add('d-none'));
@@ -62,7 +62,6 @@ const App = {
   },
 
   setupEventListeners: () => {
-    // 👤 EVENTO: Guardar cambios del Modal "Mi Perfil"
     const formPerfil = document.getElementById('form-perfil-usuario');
     if (formPerfil) {
       formPerfil.addEventListener('submit', async (e) => {
@@ -120,7 +119,6 @@ const App = {
       });
     }
 
-    // 🛡️ EVENTO: Crear Nuevo Usuario (Admin)
     const formUsuario = document.getElementById('form-nuevo-usuario');
     if (formUsuario) {
       formUsuario.addEventListener('submit', async (e) => {
@@ -152,7 +150,6 @@ const App = {
       });
     }
 
-    // --- CÓDIGO ORIGINAL INTACTO ---
     const selectTipo = document.getElementById('prod_tipo');
     const panelVariantes = document.getElementById('panel-variantes');
 
@@ -750,30 +747,119 @@ const App = {
     const kpiVolumen = document.getElementById('kpi-volumen');
     const kpiIngresos = document.getElementById('kpi-ingresos');
 
-    if (!kpiRotacion || !kpiVolumen || !kpiIngresos) return;
+    const contGrafico = document.getElementById('grafico-barras');
+    const contEtiquetas = document.getElementById('grafico-etiquetas');
+    const contTopProductos = document.getElementById('top-productos-lista');
 
     try {
-      const reportes = await API.get('reportes');
+      const [reportes, ventas, productos] = await Promise.all([
+        API.get('reportes').catch(() => ({})),
+        API.get('ventas').catch(() => []),
+        API.get('productos').catch(() => [])
+      ]);
+
+      const formatter = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+
+      if (kpiRotacion) kpiRotacion.innerHTML = `${reportes.rotacion || '1.5'}<span class="fs-6 text-muted">x</span>`;
       
-      const formatter = new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
-        minimumFractionDigits: 0
+      let ingresosTotales = 0;
+      let volumenTotal = 0;
+      
+      ventas.forEach(v => {
+          ingresosTotales += parseFloat(v.total || 0);
+          volumenTotal += parseInt(v.cantidad_total || v.cantidad || 0);
       });
 
-      kpiRotacion.innerHTML = `${reportes.rotacion || '0.0'}<span class="fs-6 text-muted">x</span>`;
-      kpiVolumen.innerText = reportes.volumen_mtd || '0';
-      kpiIngresos.innerText = formatter.format(reportes.ingresos_mtd || 0);
+      if (kpiVolumen) kpiVolumen.innerText = volumenTotal;
+      if (kpiIngresos) kpiIngresos.innerText = formatter.format(ingresosTotales);
+
+      if (contGrafico && contEtiquetas) {
+          const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+          const hoy = new Date();
+          let ventasPorMes = [];
+          let etiquetasMeses = [];
+
+          for (let i = 6; i >= 0; i--) {
+              let d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+              ventasPorMes.push({ mes: d.getMonth(), anio: d.getFullYear(), total: 0 });
+              etiquetasMeses.push(meses[d.getMonth()]);
+          }
+
+          ventas.forEach(v => {
+              let fecha = new Date(v.fecha_venta || v.creado_en);
+              let index = ventasPorMes.findIndex(m => m.mes === fecha.getMonth() && m.anio === fecha.getFullYear());
+              if(index !== -1) ventasPorMes[index].total += parseFloat(v.total || 0);
+          });
+
+          let maxVenta = Math.max(...ventasPorMes.map(m => m.total));
+          if (maxVenta === 0) maxVenta = 1; 
+
+          contGrafico.innerHTML = ventasPorMes.map(m => {
+              let alturaReal = (m.total / maxVenta) * 100;
+              if(alturaReal < 5 && m.total > 0) alturaReal = 5; 
+              let alturaFondo = alturaReal + 15 > 100 ? 100 : alturaReal + 15;
+              
+              return `
+                <div class="bg-primary bg-opacity-10 rounded-top w-100 transition-all hover-scale" style="height: ${alturaFondo}%; position: relative;" title="Ventas: ${formatter.format(m.total)}">
+                  <div class="bg-primary rounded-top w-100 position-absolute bottom-0" style="height: ${(alturaReal/alturaFondo)*100}%;"></div>
+                </div>`;
+          }).join('');
+
+          contEtiquetas.innerHTML = etiquetasMeses.map(m => `<span>${m}</span>`).join('');
+      }
+
+      if (contTopProductos) {
+          let conteoProductos = {};
+          
+          ventas.forEach(v => {
+              let id = v.id_variante || v.id_producto || v.producto; 
+              if(!id) return;
+              if(!conteoProductos[id]) conteoProductos[id] = 0;
+              conteoProductos[id] += parseInt(v.cantidad_total || v.cantidad || 1);
+          });
+
+          let topArray = Object.keys(conteoProductos).map(id => {
+              let prod = productos.find(p => p.id_producto == id || p.id_variante == id || p.nombre == id);
+              return {
+                  nombre: prod ? prod.nombre : `Prod. Desconocido #${id}`,
+                  cantidad: conteoProductos[id]
+              };
+          });
+
+          topArray.sort((a, b) => b.cantidad - a.cantidad);
+          topArray = topArray.slice(0, 4);
+
+          const colores = ['primary', 'info', 'warning', 'secondary'];
+          let maxCantidad = topArray.length > 0 ? topArray[0].cantidad : 1;
+
+          if (topArray.length === 0) {
+              contTopProductos.innerHTML = '<p class="text-muted small text-center mt-4">Aún no hay suficientes ventas registradas.</p>';
+          } else {
+              contTopProductos.innerHTML = topArray.map((item, index) => {
+                  let porcentaje = (item.cantidad / maxCantidad) * 100;
+                  let color = colores[index % colores.length];
+                  return `
+                  <div class="mb-4">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-light rounded p-1"><i class="bi bi-tag text-muted"></i></div>
+                            <span class="fw-semibold small text-dark text-truncate" style="max-width: 160px;">${item.nombre}</span>
+                        </div>
+                        <span class="fw-bold small">${item.cantidad} <span class="text-muted fw-normal">ud.</span></span>
+                      </div>
+                      <div class="progress bg-${color} bg-opacity-10" style="height: 8px;">
+                        <div class="progress-bar bg-${color} rounded-pill" role="progressbar" style="width: ${porcentaje}%;"></div>
+                      </div>
+                  </div>`;
+              }).join('');
+          }
+      }
 
     } catch (error) {
       console.error("Error cargando reportes:", error);
-      kpiRotacion.innerText = '--';
-      kpiVolumen.innerText = '--';
-      kpiIngresos.innerText = '--';
     }
   },
 
-  // 🛡️ NUEVA FUNCIÓN REAL: Traer usuarios de la BD y pintarlos en la tabla
   cargarUsuarios: async () => {
     const tbody = document.getElementById('tabla-usuarios-body');
     if (!tbody) return;
@@ -795,9 +881,8 @@ const App = {
         
         let colorRol = usr.rol === 'admin' ? 'bg-primary text-white' : 'bg-light text-dark border';
 
-        // Lógica para mostrar los botones correctos
         let botonesHTML = '';
-        if (usr.id_usuario !== 1) { // Protegemos al admin principal (ID 1)
+        if (usr.id_usuario !== 1) { 
           if (usr.estado === 'activo') {
             botonesHTML = `
               <button class="btn btn-sm btn-outline-danger" onclick="App.eliminarUsuario(${usr.id_usuario})" title="Dar de baja">
@@ -830,11 +915,9 @@ const App = {
     }
   },
 
-  // 🛡️ FUNCIÓN CORREGIDA: Dar de baja a un empleado
   eliminarUsuario: async (id) => {
     if (confirm("¿Estás seguro de dar de baja a este empleado? Ya no podrá iniciar sesión.")) {
       try {
-        // Hacemos la petición directa con fetch para evitar errores de api.js
         const res = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
           method: 'DELETE',
           headers: {
@@ -843,7 +926,7 @@ const App = {
         });
 
         if (res.ok) {
-          App.cargarUsuarios(); // Recarga la tabla para que veas el cambio
+          App.cargarUsuarios(); 
           if(window.Swal) {
             Swal.fire('¡Dado de baja!', 'El usuario ha sido desactivado.', 'success');
           } else {
@@ -865,7 +948,6 @@ const App = {
     }
   },
 
-  // ♻️ NUEVA FUNCIÓN: Reactivar a un empleado
   reactivarUsuario: async (id) => {
     if (confirm("¿Estás seguro de reactivar a este empleado? Podrá volver a iniciar sesión.")) {
       try {
@@ -875,7 +957,7 @@ const App = {
         });
 
         if (res.ok) {
-          App.cargarUsuarios(); // Recarga la tabla
+          App.cargarUsuarios(); 
           if(window.Swal) Swal.fire('¡Reactivado!', 'El usuario vuelve a estar activo.', 'success');
           else alert("Usuario reactivado exitosamente.");
         } else {
@@ -889,6 +971,70 @@ const App = {
       }
     }
   }
-};
+}; // 💡 ¡ESTA ES LA LLAVE QUE FALTABA PARA CERRAR EL OBJETO APP!
+
+async function cargarClientesAdmin() {
+  const tbody = document.getElementById('tabla-clientes-body');
+  if (!tbody) return;
+  
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Cargando clientes...</td></tr>';
+  
+  try {
+    const res = await fetch('http://localhost:3000/api/clientes');
+    const clientes = await res.json();
+    
+    tbody.innerHTML = '';
+    
+    if (clientes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Aún no hay clientes registrados desde la tienda virtual.</td></tr>';
+      return;
+    }
+    
+    clientes.forEach(cliente => {
+      tbody.innerHTML += `
+        <tr>
+          <td><span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3">#${cliente.id_cliente}</span></td>
+          <td class="fw-bold">${cliente.nombre}</td>
+          <td class="text-muted"><i class="bi bi-envelope me-1"></i>${cliente.correo}</td>
+          <td>${cliente.telefono && cliente.telefono !== '0000000000' ? cliente.telefono : '<span class="text-black-50 small">Sin especificar</span>'}</td>
+          <td>${cliente.direccion ? cliente.direccion : '<span class="text-black-50 small">Sin especificar</span>'}</td>
+        </tr>
+      `;
+    });
+  } catch (error) {
+    console.error("Error al cargar clientes:", error);
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-2"></i>Error de conexión con la base de datos.</td></tr>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarClientesAdmin(); 
+  
+  const linkClientes = document.querySelector('a[onclick*="clientes"]');
+  if(linkClientes) {
+    linkClientes.addEventListener('click', cargarClientesAdmin);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  let ultimoScroll = 0;
+  const topbar = document.querySelector('.topbar');
+
+  if (topbar) {
+    window.addEventListener('scroll', () => {
+      let scrollActual = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollActual > ultimoScroll && scrollActual > 80) {
+        topbar.classList.add('topbar-oculta');
+      } 
+      else {
+        topbar.classList.remove('topbar-oculta');
+      }
+
+      ultimoScroll = scrollActual <= 0 ? 0 : scrollActual;
+    });
+  }
+});
+
 
 document.addEventListener('DOMContentLoaded', App.init);

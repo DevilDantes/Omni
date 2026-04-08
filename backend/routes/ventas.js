@@ -29,88 +29,90 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ➕ POST: Procesar una nueva venta (¡Con Transacción SQL!)
+// ➕ POST: Procesar una nueva venta desde el Carrito (¡Con Transacción SQL!)
 router.post('/', async (req, res) => {
-  // Pedimos una conexión dedicada para hacer la transacción
   const connection = await db.getConnection(); 
 
   try {
+    // 💡 AHORA RECIBIMOS LA LISTA DEL CARRITO (detalles) Y LOS TOTALES
     const { 
-      id_cliente, 
-      id_variante, 
-      cantidad, 
-      canal_venta, 
-      metodo_pago 
+      numero_orden, id_cliente, canal_venta, estado, 
+      subtotal, total, observaciones, detalles 
     } = req.body;
 
-    const id_usuario = 1; // Por ahora asignamos el Admin, luego lo cambiarás por el usuario logueado
-    const id_almacen = 1; // Asumimos bodega principal
-    const qty = parseInt(cantidad);
+    const id_usuario = 1; // Admin por defecto
+    const id_almacen = 1; // Bodega principal
 
-    await connection.beginTransaction(); // Iniciamos la transacción segura
+    await connection.beginTransaction(); 
 
-    // 1. Obtener datos del producto/variante (precio y id_producto)
-    const [varianteData] = await connection.query(
-      `SELECT id_producto, precio_venta FROM producto_variantes WHERE id_variante = ?`, 
-      [id_variante]
-    );
-
-    if (varianteData.length === 0) throw new Error("La variante del producto no existe");
-    
-    const { id_producto, precio_venta } = varianteData[0];
-    const total_venta = precio_venta * qty;
-
-    // 2. Verificar stock en el inventario
-    const [invData] = await connection.query(
-      `SELECT id_inventario, stock_actual FROM inventario WHERE id_variante = ? AND id_almacen = ? FOR UPDATE`,
-      [id_variante, id_almacen]
-    );
-
-    if (invData.length === 0 || invData[0].stock_actual < qty) {
-      throw new Error("No hay stock suficiente para realizar esta venta");
-    }
-    const id_inventario = invData[0].id_inventario;
-
-    // 3. Crear la Orden de Venta
-    const numero_orden = `VEN-${Date.now()}`; // Generamos un número único
+    // 1. Crear la Orden de Venta Principal
     const [resOrden] = await connection.query(`
       INSERT INTO ordenes_venta (numero_orden, id_cliente, id_usuario, canal_venta, estado, subtotal, total) 
-      VALUES (?, ?, ?, ?, 'pagada', ?, ?)
-    `, [numero_orden, id_cliente || null, id_usuario, canal_venta, total_venta, total_venta]);
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [numero_orden || `WEB-${Date.now()}`, id_cliente || 1, id_usuario, canal_venta || 'online', estado || 'pagada', subtotal, total]);
     
     const id_orden_venta = resOrden.insertId;
 
-    // 4. Insertar el Detalle de la Orden
-    await connection.query(`
-      INSERT INTO detalle_orden_venta (id_orden_venta, id_variante, cantidad, precio_unitario, subtotal)
-      VALUES (?, ?, ?, ?, ?)
-    `, [id_orden_venta, id_variante, qty, precio_venta, total_venta]);
+    // 2. Procesar CADA PRODUCTO del carrito
+    for (let item of detalles) {
+      const qty = parseInt(item.cantidad) || 1;
+      const precio_unitario = parseFloat(item.precio_unitario) || 0;
+      const id_producto = item.id_producto;
 
-    // 5. Registrar el Pago
+      // Buscar cuál es la variante principal de este producto
+      const [varData] = await connection.query(
+        `SELECT id_variante FROM producto_variantes WHERE id_producto = ? LIMIT 1`, 
+        [id_producto]
+      );
+
+      if (varData.length === 0) throw new Error(`El producto ${item.nombre} no tiene una variante configurada.`);
+      const id_variante = varData[0].id_variante;
+
+      // Buscar su ID en el inventario para poder descontarlo
+      const [invData] = await connection.query(
+        `SELECT id_inventario, stock_actual FROM inventario WHERE id_variante = ? AND id_almacen = ? FOR UPDATE`,
+        [id_variante, id_almacen]
+      );
+
+      let id_inventario = null;
+      if (invData.length > 0) {
+        id_inventario = invData[0].id_inventario;
+      }
+
+      // Insertar en el detalle de la orden
+      await connection.query(`
+        INSERT INTO detalle_orden_venta (id_orden_venta, id_variante, cantidad, precio_unitario, subtotal)
+        VALUES (?, ?, ?, ?, ?)
+      `, [id_orden_venta, id_variante, qty, precio_unitario, qty * precio_unitario]);
+
+      // Descontar inventario (Solo si está registrado en bodega)
+      if (id_inventario) {
+        await connection.query(`
+          UPDATE inventario SET stock_actual = stock_actual - ? WHERE id_inventario = ?
+        `, [qty, id_inventario]);
+
+        // Registrar el Movimiento (Kardex)
+        await connection.query(`
+          INSERT INTO movimientos_inventario (id_inventario, id_producto, id_variante, id_almacen, id_usuario, tipo_movimiento, cantidad)
+          VALUES (?, ?, ?, ?, ?, 'salida', ?)
+        `, [id_inventario, id_producto, id_variante, id_almacen, id_usuario, qty]);
+      }
+    }
+
+    // 3. Registrar el Pago
+    const metodo_pago = observaciones && observaciones.includes('tarjeta') ? 'tarjeta' : 'efectivo';
     await connection.query(`
       INSERT INTO pagos_venta (id_orden_venta, metodo_pago, monto, estado)
       VALUES (?, ?, ?, 'aprobado')
-    `, [id_orden_venta, metodo_pago, total_venta]);
+    `, [id_orden_venta, metodo_pago, total]);
 
-    // 6. Descontar del Inventario
-    await connection.query(`
-      UPDATE inventario SET stock_actual = stock_actual - ? WHERE id_inventario = ?
-    `, [qty, id_inventario]);
-
-    // 7. Registrar el Movimiento (Kardex)
-    await connection.query(`
-      INSERT INTO movimientos_inventario (id_inventario, id_producto, id_variante, id_almacen, id_usuario, tipo_movimiento, cantidad)
-      VALUES (?, ?, ?, ?, ?, 'salida', ?)
-    `, [id_inventario, id_producto, id_variante, id_almacen, id_usuario, qty]);
-
-    // ¡Todo salió bien! Guardamos los cambios en la base de datos
+    // ¡Todo salió bien! Guardamos
     await connection.commit();
     connection.release();
 
     res.json({ ok: true, message: "Venta procesada exitosamente", id_orden: id_orden_venta });
 
   } catch (error) {
-    // Si algo falló arriba, revertimos TODOS los cambios (no cobra, no descuenta inventario)
     await connection.rollback();
     connection.release();
     console.error("Error al procesar la venta:", error);
