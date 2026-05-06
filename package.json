@@ -3,3 +3,13 @@
     "jsonwebtoken": "^9.0.3"
   }
 }
+  "name": "omni-main",
+  "version": "1.0.0",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3"
+  }
+}
