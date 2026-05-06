@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
-  },
+  "start": "node backend/server.js"
+}
   "license": "ISC",
   "type": "module",
   "dependencies": {
